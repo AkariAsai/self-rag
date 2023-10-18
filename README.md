@@ -25,7 +25,7 @@ If you find our code, data, models, or the paper useful, please cite the paper:
 ## Updates 
 - **2023.10**: Initial release of codes, models, and the paper. 
 
-# Content 
+## Content 
 1. [Installation](#installation)
 2. [Quick Start](#quick-start)
 2. [Retriever setup](#retriever-setup)
