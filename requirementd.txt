@@ -1,0 +1,27 @@
+tqdm
+vllm
+spacy
+jsonlines
+torch
+transformers
+filelock
+datasets
+nltk
+dataclasses
+sacrebleu
+rouge_score
+peft
+bitsandbytes
+flash-attn==2.2.2
+einops
+sentencepiece
+deepspeed>=0.10.0
+accelerate>=0.21.0,<0.23.0  # 0.23.0 will cause an incorrect learning rate schedule when using deepspeed, which is likely caused by https://github.com/huggingface/accelerate/commit/727d624322c67db66a43c559d8c86414d5ffb537
+peft>=0.4.0
+bitsandbytes>=0.41.1
+evaluate>=0.4.0
+tokenizers>=0.13.3
+tensorboard
+openai
+tiktoken
+factscore=0.1.5
