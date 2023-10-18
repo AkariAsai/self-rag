@@ -4,10 +4,10 @@ This includes the original implementation of [SELF-RAG: Learning to Retrieve, Ge
 
 [Website](https://selfrag.github.io/) | [7B Model](https://huggingface.co/selfrag/selfrag_llama2_7b) | [13B Model](https://huggingface.co/selfrag/selfrag_llama2_13b) | [Paper](https://akariasai.github.io/files/adaptive_retrieval_augmented_lm_arxiv.pdf) | [Updates](#updates)
 
-**Self-RAG** (Figure right) is a new framework to train an arbitrary LM learn to retrieve, generate and critique to enhance factuality and quality of generations, without hurting versatility of LLMs. 
+**Self-RAG** (Figure right) is a new framework to train an arbitrary LM to learn to retrieve, generate, and critique to enhance factuality and quality of generations, without hurting versatility of LLMs. 
 
-Unlike a widely-adopted Retrieval-Augmented Generation (RAG; Figure left) approaches, **Self-RAG** retrieve on demand (e.g., can retrieve multiple times or completely skip retrieval) given diverse queries, and criticize its own generation from multiple fine-grained aspects by predicting **reflection tokens** as an integral part of generation. 
-We conduct segment-wise beam search to select the output that maximize the utility for diverse preferences. 
+Unlike a widely-adopted Retrieval-Augmented Generation (RAG; Figure left) approach, **Self-RAG** retrieves on demand (e.g., can retrieve multiple times or completely skip retrieval) given diverse queries, and criticize its own generation from multiple fine-grained aspects by predicting **reflection tokens** as an integral part of generation. 
+We conduct a segment-wise beam search to select the output that maximizes the utility for diverse preferences. 
 
 
 ![](images/teaser_self_rag_v8.png)
@@ -23,11 +23,11 @@ If you find our code, data, models, or the paper useful, please cite the paper:
 ```
 
 ## Updates 
-- **2023.10**: Initial release of codes, models and the paper. 
+- **2023.10**: Initial release of codes, models, and the paper. 
 
 # Content 
 1. [Installation](#installation)
-2. [Quick start](#quick-start)
+2. [Quick Start](#quick-start)
 2. [Retriever setup](#retriever-setup)
 3. [Training](#training) 
 4. [Inference](#inference)
@@ -35,12 +35,12 @@ If you find our code, data, models, or the paper useful, please cite the paper:
 
 
 ## Installation
-Install dependent python libraries by running the command below.
+Install dependent Python libraries by running the command below.
 
 ```
 pip install -r requirements.txt
 ```
-Please use the latest version of `vllm`, as older version may not enable you to set `skip_special_tokens` a generation parameter, as solved by ([this PR](https://github.com/vllm-project/vllm/issues/893)). 
+Please use the latest version of `vllm`, as the older version may not enable you to set `skip_special_tokens` via `SamplingParam`, which is added by ([this PR](https://github.com/vllm-project/vllm/issues/893)). 
 
 ## Quick start
 You can download Self-RAG from HuggingFace Hub. For inference, we recommend using [vllm](https://vllm.readthedocs.io/en/latest/) as it significantly speed up inferences. 
@@ -76,8 +76,7 @@ print([pred.outputs[0].text for pred in preds])
 # ['[Relevant]Alpacas are considerably smaller than llamas, and unlike llamas, they were not bred to be working animals, but were bred specifically for their fiber.[Fully supported][Utility:5]</s>']
 ```
 
-
-For full evaluation, you either need to setup retriever or download our retrieved results. Please follow instructions at [Inference](#instruction).  
+For a full evaluation, you either need to set up a retriever or download our retrieved results. Please follow instructions at [Inference](#instruction).  
 
 
 ## Retriever Setup
@@ -151,7 +150,7 @@ torchrun --nproc_per_node=2 \
 ```
 
 ### Generator Data Creation
-Code to create Generator training data is under [generator_data_creation](data_creation/generator). See the instructions at [README.md](data_creation/generator/README.md). 
+The code to create Generator training data is under [generator_data_creation](data_creation/generator). See the instructions at [README.md](data_creation/generator/README.md). 
 
 Alternatively, you can download our training data at [HuggingFace dataset](https://huggingface.co/datasets/selfrag/selfrag_train_data/tree/main) or [here](https://drive.google.com/file/d/10G_FozUV4u27EX0NjwVe-3YMUMeTwuLk/view?usp=share_link)
 
@@ -161,9 +160,9 @@ For generator training, we use DeepSpeed to make training more efficient. You ca
 
 ```
 cd retrieval_lm
-bash training_7b.sh
+bash script_finetune_7b.sh
 ```
-For 13B model training, use `training_13b`. We use 8 A100 with 40 GRAM for 7B model training, and 4 a100 with 80 GB GRAM for 13B training. 7B should fit 1-2 A100 although training can be slow.  
+For 13B model training, use `training_13b`. We use 8 A100 with 40 GRAM for 7B model training and 4 a100 with 80 GB GRAM for 13B training. 7B should fit 1-2 A100 although training can be slow.  
 
 ## Inference 
 For the task evaluation conducted in the paper, please download the data [here](https://drive.google.com/file/d/1TLKhWjez63H4uBtgCxyoyJsZi-IMgnDb/view?usp=share_link). 
@@ -175,7 +174,7 @@ Below, we describe Self-RAG and baselines.
 - [Long-form](#long_form): run evaluations for long-form generations. 
 
 ### Short-form (PubHealth, ARC-Challenge, TriviaQA, PopQA)
-As short-form generation, we typically only retrieve once, we provide an easy-to-run evaluation script that leverages pre-given documents retrieved by Contriever offline. See the individual command below. 
+As we typically retrieve only once for a short-form generation task, we provide an easy-to-run evaluation script that leverages pre-given documents retrieved by Contriever offline. See the individual command below. 
 
 #### Question Answering
 
@@ -251,28 +250,28 @@ python run_long_form_static.py.py \
 ```
 
 ##### Key parameters for long-form generations 
-There are several key parameters related to inference of Self-RAG. 
+There are several key parameters related to the inference of Self-RAG. 
 - `w_rel` (default 1.0): `w_rel` controls the emphasis on the `isRel` (a critique token on whether retrieved passages are relevant or not) token probability during beam search.
 - `w_sup` (default 1.0): `w_sup` controls the emphasis on the `isSup` (a critique token on whether the generation is supported by the document or not) token probability during beam search.
 - `w_use` (default 0.5): `w_use` controls the emphasis on the `isUse` (a critique token on overall quality) token probability during beam search.
 - `threshold` (default 0.2): this threshold controls the frequency of adaptive retrieval.
 - `max_depth` (default 6): this corresponds to `T` in the paper, which defines the maximum depth of search.
-- `beam_width` (default 2): this controls the size of beam in the segment level beam search. 
+- `beam_width` (default 2): this controls the size of the beam in the segment-level beam search. 
 
-For more details, please refer the details (Section 3.3) and analysis (Section 5) in our paper.  
+For more details, please refer to the details (Section 3.3) and analysis (Section 5) in our paper.  
 
 #### Run evaluation
-For long-form evaluations, set up the external libraries or repositories to run evaluations. 
+For long-form evaluations, set up external libraries or repositories to run evaluations. 
 
 - `factscore==v0.1.5` (bio)
-Please follow the instruction at the [FactScore](https://github.com/shmsw25/FActScore) official repository to setup your environment. 
+Please follow the instructions at the [FactScore](https://github.com/shmsw25/FActScore) official repository to set up your environment. 
 ```
 python -m factscore.factscorer --data_path YOUR_OUTPUT_FILE  --model_name retrieval+ChatGPT --cache_dir YOUR_CACHE_DIR --openai_key YOUR_OPEN_AI_KEY --verbose
 ```
 
 - [ALCE/ASQA](https://github.com/princeton-nlp/ALCE)
 
-ALCE provides a comprehensive evaluation using multiple different metrics for long-form QA. For your first evaluation, install ALCE repo and download the data. 
+ALCE provides a comprehensive evaluation using multiple different metrics for long-form QA. For your first evaluation, install the ALCE repo and download the data. 
 ```
 git clone https://github.com/princeton-nlp/ALCE.git
 python3 -m alce_env
@@ -280,7 +279,7 @@ cd ALCE
 bash download_data.sh
 ```
 
-For ASQA, you can run evaluations as follows. Note that ASQA evaluations requires T5-XXL (11B)-based NLI module. 
+For ASQA, you can run evaluations as follows. Note that ASQA evaluations require T5-XXL (11B)-based NLI module. 
 ```
 python eval.py --f YOUR_OUTPUT_FILE --citations --qa --mauve
 ```
