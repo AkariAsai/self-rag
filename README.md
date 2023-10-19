@@ -48,7 +48,6 @@ Please use the latest version of `vllm`, as the older version may not enable you
 You can download Self-RAG from HuggingFace Hub. For inference, we recommend using [vllm](https://vllm.readthedocs.io/en/latest/) as it significantly speeds up inferences. 
  
 ```py
-from transformers import AutoTokenizer, AutoModelForCausalLM
 from vllm import LLM, SamplingParams
 
 model = LLM("selfrag/selfrag_llama2_7b", download_dir="/gscratch/h2lab/akari/model_cache", dtype="half")
@@ -60,7 +59,7 @@ def format_prompt(input, paragraph=None):
     prompt += "[Retrieval]<paragraph>{0}</paragraph>".format(paragraph)
   return prompt
 
-query_1 = "Leave odd one out: twitter, instagram, what'sup."
+query_1 = "Leave odd one out: twitter, instagram, whatsapp."
 query_2 = "Can you tell me the difference between llamas and alpacas?"
 queries = [query_1, query_2]
 
@@ -68,18 +67,61 @@ queries = [query_1, query_2]
 preds = model.generate([format_prompt(query) for query in queries], sampling_params)
 for pred in preds:
   print("Model prediction: {0}".format(pred.outputs[0].text))
-# Model prediction: Twitter, Instagram, and WhatsApp are all social media platforms.[No Retrieval]WhatsApp is the odd one out because it is a messaging app, while Twitter and # Instagram are primarily used for sharing photos and videos.[Utility:5]</s> (this query doesn't require factual grounding; just skip retrieval and do normal instruction-following generation)
-# Model prediction: Sure![Retrieval]<paragraph> ... (this query requires factual grounding, call a retriever)
+```
 
+Output: 
+```txt
+Model prediction: Twitter, Instagram, and WhatsApp are all social media platforms. [No Retrieval]WhatsApp is the odd one out because it is a messaging app, while Twitter and # Instagram are primarily used for sharing photos and videos.[Utility:5]</s> 
+Model prediction: Sure![Retrieval]<paragraph><paragraph>
+```
+As you can see, Self-RAG starts generating responses without retrieval in the first query when it does not require retrieval. On the other hand, Self-RAG output `[Retrieve]` tokens for the second, as this question requires more fine-grained factual grounding. 
+
+For the query requires factual grounding, you can insert a paragraph. Self-RAG can retrieves and inserts paragraphs anytime while generation, and recognizes them as long as they are surrounded by context markup special tokens `<paragraph>`, `</paragraph>`.   
+```
 # for a query that needs factual grounding
 prompt = format_prompt("Can you tell me the difference between llamas and alpacas?", "The alpaca (Lama pacos) is a species of South American camelid mammal. It is similar to, and often confused with, the llama. Alpacas are considerably smaller than llamas, and unlike llamas, they were not bred to be working animals, but were bred specifically for their fiber.")
 preds = model.generate([prompt], sampling_params)
 print([pred.outputs[0].text for pred in preds])
 # ['[Relevant]Alpacas are considerably smaller than llamas, and unlike llamas, they were not bred to be working animals, but were bred specifically for their fiber.[Fully supported][Utility:5]</s>']
 ```
+Self-RAG find inserted document is relevant and generate answers that are fully supported by the evidence. 
 
-For a full evaluation, you either need to set up a retriever or download our retrieved results. Please follow instructions at [Inference](#instruction).  
 
+### Run your evaluation using online retrieval model
+
+You can also run retrieval on-demand and use it with Self-RAG. As running retrieval over full English Wikipedia requires large RAM and multiple GPUs, we created a subset of Wikipedia which includes intro paragraphs of Wikipedia articles only for demo purpose. 
+
+First, please download the corpus and embeddings (9GB in total). 
+
+```
+git clone git@github.com:AkariAsai/self-rag.git
+cd retrieval_lm
+bash download_demo_corpus.sh
+```
+If the script does not work, you can download the data from [google drive](https://drive.google.com/file/d/1IYNAkwawfCDiBL27BlBqGssxFQH9vOux/view?usp=share_link). 
+Then, you can run the script under `retrieval_lm`. We tested the script using on 1 RTRTX 6000 with 24GB and 100G RAM (but should be runnable with much smaller RAM).
+
+```py
+from passage_retriever import Retriever
+retriever = Retriever({})
+retriever.setup_retriever_demo("facebook/contriever-msmarco", "enwiki_2020_intro_only/enwiki_2020_dec_intro_only.jsonl", "enwiki_2020_intro_only/enwiki_dec_2020_contriever_intro/*",  n_docs=5, save_or_load_index=False)
+retrieved_documents = retriever.search_document_demo(query_3, 5)
+prompts = [format_prompt(query_3, doc["title"] +"\n"+ doc["text"]) for doc in retrieved_documents]
+preds = model.generate(prompts, sampling_params)
+top_doc = retriever.search_document_demo(query_3, 1)[0]
+print("Reference: {0}\nModel prediction: {1}".format(top_doc["title"] + "\n" + top_doc["text"], preds[0].outputs[0].text))
+```
+
+Output:
+```txt
+Reference: Overfitting
+  In statistics, overfitting is "the production of an analysis that corresponds too closely or exactly to a particular set of data, and may therefore fail to fit additional data or predict future observations reliably". An overfitted model is a statistical model that contains more parameters than can be justified by the data. The essence of overfitting is to have unknowingly extracted some of the residual variation (i.e., the noise) as if that variation represented underlying model structure. Underfitting occurs when a statistical model cannot adequately capture the underlying structure of the data. An under-fitted model is a model where some parameters or terms that would appear in a correctly specified model are
+Model prediction: [Relevant]Overfitting occurs when a model has too many parameters relative to the amount of data it has been trained on, leading it to memorize the training data too closely and perform poorly on new, unseen data.[Fully supported][Utility:5]</s>
+
+```
+The retriever system properly retrieves necessary document and generate fully grounded output. 
+
+Note that this is a demo using a smaller corpus and Self-RAG with the full inference algorithm. For full evaluation, you either need to setup retriever or download our retrieved results. Please follow instructions at [Inference](#instruction).  
 
 ## Retriever Setup
 By default, we use [Contriever](https://github.com/facebookresearch/contriever) as our retrieval component. 
@@ -110,6 +152,18 @@ python passage_retrieval.py \
 ```
 Your input file should be either a `json` or `jsonl`. Each instance must contain either `question` or `instruction`, which will be used as a query during retrieval. 
 
+### Generate embeddings for your own data
+
+You can generate embeddings for your own data by running the following command (the script is adapted from the Contriever repository). Note that generating embeddings from a large scale corpus (>10M docs) can take time, and we recommend run it on multiple GPUs. 
+
+```
+cd retrieval_lm
+for i in {0..3}; do
+  export CUDA_VISIBLE_DEVICES=${i}
+  python generate_passage_embeddings.py  --model_name_or_path facebook/contriever-msmarco \
+  --output_dir YOUR_OUTPUT_DIR \
+  --passages YOUR_PASSAGE_DATA --shard_id ${i}  --num_shards 4 > ./log/nohup.my_embeddings.${i} 2>&1 &
+```
 
 ## Training
 **Self-RAG** trains two models, *Critic* and *Generator*, both of which expand token vocabularies with reflection tokens and are trained with the standard next token prediction objective. 

@@ -62,6 +62,33 @@ class Retriever:
         print(f"Questions embeddings shape: {embeddings.size()}")
 
         return embeddings.numpy()
+    
+
+    def embed_queries_demo(self, queries):
+        embeddings, batch_question = [], []
+        with torch.no_grad():
+            for k, q in enumerate(queries):
+                batch_question.append(q)
+
+                if len(batch_question) == 16 or k == len(queries) - 1:
+
+                    encoded_batch = self.tokenizer.batch_encode_plus(
+                        batch_question,
+                        return_tensors="pt",
+                        max_length=200,
+                        padding=True,
+                        truncation=True,
+                    )
+                    encoded_batch = {k: v.cuda() for k, v in encoded_batch.items()}
+                    output = self.model(**encoded_batch)
+                    embeddings.append(output.cpu())
+
+                    batch_question = []
+
+        embeddings = torch.cat(embeddings, dim=0)
+        print(f"Questions embeddings shape: {embeddings.size()}")
+
+        return embeddings.numpy()
 
     def index_encoded_data(self, index, embedding_files, indexing_batch_size):
         allids = []
@@ -137,7 +164,43 @@ class Retriever:
         print(f"Search time: {time.time()-start_time_retrieval:.1f} s.")
 
         return self.add_passages(self.passage_id_map, top_ids_and_scores)[:top_n]
+    
+    def search_document_demo(self, query, n_docs=10):
+        questions_embedding = self.embed_queries_demo([query])
 
+        # get top k results
+        start_time_retrieval = time.time()
+        top_ids_and_scores = self.index.search_knn(questions_embedding, n_docs)
+        print(f"Search time: {time.time()-start_time_retrieval:.1f} s.")
+
+        return self.add_passages(self.passage_id_map, top_ids_and_scores)[:n_docs]
+
+    def setup_retriever_demo(self, model_name_or_path, passages, passages_embeddings, n_docs=5, save_or_load_index=False):
+        print(f"Loading model from: {model_name_or_path}")
+        self.model, self.tokenizer, _ = src.contriever.load_retriever(model_name_or_path)
+        self.model.eval()
+        self.model = self.model.cuda()
+
+        self.index = src.index.Indexer(768, 0, 8)
+
+        # index all passages
+        input_paths = glob.glob(passages_embeddings)
+        input_paths = sorted(input_paths)
+        embeddings_dir = os.path.dirname(input_paths[0])
+        index_path = os.path.join(embeddings_dir, "index.faiss")
+        if save_or_load_index and os.path.exists(index_path):
+            self.index.deserialize_from(embeddings_dir)
+        else:
+            print(f"Indexing passages from files {input_paths}")
+            start_time_indexing = time.time()
+            self.index_encoded_data(self.index, input_paths, 1000000)
+            print(f"Indexing time: {time.time()-start_time_indexing:.1f} s.")
+
+        # load passages
+        print("loading passages")
+        self.passages = src.data.load_passages(passages)
+        self.passage_id_map = {x["id"]: x for x in self.passages}
+        print("passages have been loaded")
 
 def add_hasanswer(data, hasanswer):
     # add hasanswer to data
