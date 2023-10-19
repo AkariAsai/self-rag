@@ -19,8 +19,8 @@ If you find our code, data, models, or the paper useful, please cite the paper:
   author    = {Asai, Akari and Wu, Zeqiu and Wang, Yizhong and Sil, Avirup and Hajishirzi, Hannaneh},
   title     = {{Self-RAG}: Learning to Retrieve, Generate, and Critique through Self-Reflection},
   year      = {2023},
-journal={ arXiv preprint arXiv:2310.11511 },
-    url={https://arxiv.org/abs/2310.11511}
+ journal={ arXiv preprint arXiv:2310.11511 },
+ url={https://arxiv.org/abs/2310.11511}
 }
 ```
 
@@ -45,7 +45,7 @@ pip install -r requirements.txt
 Please use the latest version of `vllm`, as the older version may not enable you to set `skip_special_tokens` via `SamplingParam`, which is added by ([this PR](https://github.com/vllm-project/vllm/issues/893)). 
 
 ## Quick start
-You can download Self-RAG from HuggingFace Hub. For inference, we recommend using [vllm](https://vllm.readthedocs.io/en/latest/) as it significantly speed up inferences. 
+You can download Self-RAG from HuggingFace Hub. For inference, we recommend using [vllm](https://vllm.readthedocs.io/en/latest/) as it significantly speeds up inferences. 
  
 ```py
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -108,7 +108,7 @@ python passage_retrieval.py \
     --output_dir YOUR_OUTPUT_FILE \
     --n_docs 20
 ```
-Your input file should be either a `json` or `jsonl`. Each instance must contains either `question` or `instruction`, which will be used as a query during retrieval. 
+Your input file should be either a `json` or `jsonl`. Each instance must contain either `question` or `instruction`, which will be used as a query during retrieval. 
 
 
 ## Training
@@ -122,9 +122,9 @@ Your input file should be either a `json` or `jsonl`. Each instance must contain
 Alternatively, you can download our training data consisting of 150K instances [here](https://drive.google.com/file/d/10G_FozUV4u27EX0NjwVe-3YMUMeTwuLk/view?usp=share_link).
 
 ### Collect reflection tokens
-We collect training data from GPT-4. The script to call GPT-4 for each special token types are available at [data_creation/critic](data_creation/critic). 
+We collect training data from GPT-4. The scripts to call GPT-4 for each special token type are available at [data_creation/critic](data_creation/critic). 
 
-Alternatively, you can download our training data at HuggingFace dataset [here](https://drive.google.com/file/d/1IN1XcIOYtRIGWITJ4LKRgfITT-uUwk_W/view?usp=share_link). 
+Alternatively, you can download our training data at [here](https://drive.google.com/file/d/1IN1XcIOYtRIGWITJ4LKRgfITT-uUwk_W/view?usp=share_link). 
 
 ### Critic training
 Once you create or download training data, run the command below to fine-tune Llama2-7B on critic training.  
@@ -169,7 +169,7 @@ For 13B model training, use `training_13b`. We use 8 A100 with 40 GRAM for 7B mo
 ## Inference 
 For the task evaluation conducted in the paper, please download the data [here](https://drive.google.com/file/d/1TLKhWjez63H4uBtgCxyoyJsZi-IMgnDb/view?usp=share_link). 
 
-Each file already comes with retrieved documents, so if you don't want to run retriever as a part of inference, you can simply load the retrieved docs at `contexts`. 
+Each file already comes with retrieved documents, so if you don't want to run a retriever as a part of inference, you can simply load the retrieved docs at `contexts`. 
 
 Below, we describe Self-RAG and baselines. 
 - [Short-form](#shot_form): run evaluation for short-form generation. 
@@ -194,10 +194,10 @@ python run_short_form.py \
 `mode` specifies the inference time mode among `['adaptive_retrieval', 'no_retrieval', 'always_retrieve']`. 
 
 - `adaptive_retrieval` retrieves given the `threshold` or Self-RAG prediction
-- `no_retrieval` disable retrieval at inference time
+- `no_retrieval` disables retrieval at inference time
 - `always_retrieve` always retrieves. 
 
-For 13B, you may have OOM issue if you use single GPU with 24 GRAM. You can run inference on multiple GPUs by setting `--world_size`.  
+For 13B, you may have an OOM issue if you use a single GPU with 24 GRAM. You can run inference on multiple GPUs by setting `--world_size`.  
 
 #### ARC Challenge
 ```
@@ -223,10 +223,10 @@ python run_short_form.py \
 ```
 
 ### Long-form (ASQA, FactScore)
-For long-form QA, you can either run evaluation with retrieval model or run it with pre-given passages. 
-Currently we are working on reducing run-time memory requirements (DPR / Contriever) with the whole English Wikipedia requires 100 GB RAM) and speeding up for long-form generations, and released the inference code using small set of initial retrieved documents first (~20). 
+For long-form QA, you can either run evaluations with a retrieval model or run it with pre-given passages. 
+Currently, we are working on reducing run-time memory requirements (DPR / Contriever with the whole English Wikipedia Embeddings requires 100 GB RAM) speeding up for long-form generations, and releasing the inference code using a small set of initial retrieved documents first (~20). 
 
-*Note: Our current implementation is specifically designed for evaluation on target task datasets. We are planning to update our code base to make interface more simple and easier to use. We will announce it when we release another version.* 
+*Note: Our current implementation is specifically designed for evaluations of target task datasets. We are planning to update our code base to make the interface more simple and easier to use. We will announce it when we release another version.* 
 
 #### Run inference using pre-retrieved passages
 
