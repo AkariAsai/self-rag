@@ -270,7 +270,8 @@ def main():
     # Decoding hyperparams
     parser.add_argument('--threshold', type=float,
                         default=None, help="Adaptive threshold.")
-    parser.add_argument("--use_grounding", action="store_true",
+    parser.add_argument("--use_seqscore", action="store_true")
+    parser.add_argument("--use_groundness", action="store_true",
                         help="use ground score")
     parser.add_argument(
         "--use_utility", action="store_true", help="tree search")
@@ -288,7 +289,7 @@ def main():
                         help="filter out sentences that include [No support / Contradictory] ")
     parser.add_argument('--mode', type=str, help="mode to control retrieval.",
                         default="default", choices=['adaptive_retrieval', 'no_retrieval', 'always_retrieve'],)
-
+    parser.add_argument('--metric', type=str, help="metric to be used during evaluation")
     args = parser.parse_args()
     gpt = args.model_name
     input_path = args.input_file
@@ -298,7 +299,7 @@ def main():
         input_data = load_jsonlines(input_path)
 
     input_data = preprocess_input_data(
-        input_data, args.instruction, task=args.task)
+        input_data, task=args.task)
     tokenizer = AutoTokenizer.from_pretrained(gpt, padding_side="left")
     if args.dtype is not None:
         model = LLM(model=gpt, download_dir=args.download_dir,
@@ -309,13 +310,13 @@ def main():
 
     # Get token ids for reflection tokens.
     ret_tokens, rel_tokens, grd_tokens, ut_tokens = load_special_tokens(
-        tokenizer, use_grounding=args.use_grounding, use_utility=args.use_utility)
+        tokenizer, use_grounding=args.use_groundness, use_utility=args.use_utility)
 
     def generate(prompt, evidences, max_new_tokens):
         return call_model_rerank_w_scores_batch(prompt, evidences=evidences, model=model, max_new_tokens=max_new_tokens,
                                                 rel_tokens=rel_tokens, ret_tokens=ret_tokens, grd_tokens=grd_tokens, ut_tokens=ut_tokens,
-                                                threshold=args.threshold, beam_width=args.beam_width, max_depth=args.max_depth,
-                                                w_rel=1.0, w_sup=1.0, w_use=0.5, mode=args.mode, closed=args.task_name in ["fever", "arc_c"])
+                                                threshold=args.threshold, beam_width=args.beam_width, max_depth=args.max_depth, use_seqscore=args.use_seqscore,
+                                                w_rel=1.0, w_sup=1.0, w_use=0.5, mode=args.mode, closed=args.task in ["fever", "arc_c"])
 
     preds = []
     prompts = []
@@ -327,9 +328,9 @@ def main():
     for i, row in tqdm(enumerate(input_data)):
         results = {}
         prompt = PROMPT_DICT["prompt_no_input"].format_map(row)
-        _, evidences = process_data_evidences(row, top_n=args.top_n)
+        _, evidences = process_data_evidences(row, top_n=args.ndocs)
         pred, results, do_retrieve = generate(
-            prompt, evidences, max_new_tokens=args.max_new_tokens, return_score=False)
+            prompt, evidences, max_new_tokens=args.max_new_tokens,)
         if type(pred) is str and pred[0] == "#" or pred[0] == ":":
             pred = pred[1:]
         prompts.append(prompt)
@@ -358,12 +359,12 @@ def main():
             print("average: {}".format(np.mean(metric_results)))
             final_results = {"preds": preds, "prompts": prompts, "metric_results": metric_results, "all_results": all_results,
                              "golds": golds,  "metric":  args.metric, "metric_mean": np.mean(metric_results), "scores": scores}
-            with open(args.result_fp + "_tmp", "w") as outfile:
+            with open(args.output_file + "_tmp", "w") as outfile:
                 json.dump(final_results, outfile)
 
     final_results = {"preds": preds, "prompts": prompts, "metric_results": metric_results, "all_results": all_results,
                      "golds": golds,  "metric":  args.metric, "metric_mean": np.mean(metric_results), "scores": scores}
-    with open(args.result_fp, "w") as outfile:
+    with open(args.output_file, "w") as outfile:
         json.dump(final_results, outfile)
 
     print("Final result: {0}".format(np.mean(metric_results)))

@@ -186,8 +186,8 @@ python run_short_form.py \
 --input_file eval_data/popqa_longtail_w_gs.jsonl \
 --mode MODE --max_new_tokens 100 \
 --threshold 0.2 \
---result_fp YOUR_OUTPUT_FILE \
---metric match --top_n 10 --use_groundness --use_utility --use_seqscore \
+--output_file YOUR_OUTPUT_FILE \
+--metric match --ndocs 10 --use_groundness --use_utility --use_seqscore \
 --dtype half
 ```
 
@@ -205,8 +205,8 @@ python run_short_form.py \
   --model_name selfrag/selfrag_llama2_7b \
   --input_file eval_data/arc_challenge_processed.jsonl \
   --max_new_tokens 50 --threshold 0.2 \
-  --result_fp OUTPUT_FILE_NAME \
-  --metric match --top_n 5 --use_groundness --use_utility --use_seqscore \
+  --output_file OUTPUT_FILE_NAME \
+  --metric match --ndocs 5 --use_groundness --use_utility --use_seqscore \
   --task arc_c
 ```
 
@@ -216,8 +216,8 @@ python run_short_form.py \
   --model_name selfrag/selfrag_llama2_7b \
   --input_file eval_data/health_claims_processed.jsonl \
   --max_new_tokens 50 \
-  --threshold 0.2 --result_fp OUTPUT_FILE_NAME \
-  --metric match --top_n 5 \
+  --threshold 0.2 --output_file OUTPUT_FILE_NAME \
+  --metric match --ndocs 5 \
   --use_groundness --use_utility --use_seqscore \
   --task fever
 ```
@@ -234,10 +234,10 @@ For ASQA, please run the following command,
 ```
 python run_long_form_static.py.py \
   --model_name selfrag/selfrag_llama2_7b \
-  --n_docs 5 --max_new_tokens 300 --threshold 0.2 \
+  --ndocs 5 --max_new_tokens 300 --threshold 0.2 \
   --use_grounding --use_utility --use_seqscore \
   --task asqa --input_file eval_data/asqa_eval_gtr_top100.json \
-  --output_file YOUR_OUTPUT_FILE_NAME --max_depth 7 mode always_retrieve \
+  --output_file YOUR_OUTPUT_FILE_NAME --max_depth 7 --mode always_retrieve \
 ```
 
 For FactScore, 
@@ -245,7 +245,7 @@ For FactScore,
 ```
 python run_long_form_static.py.py \
   --model_name selfrag/selfrag_llama2_7b \
-  --n_docs 5 --max_new_tokens 300 --threshold 0.2 \
+  --ndocs 5 --max_new_tokens 300 --threshold 0.2 \
   --use_grounding --use_utility --use_seqscore \
   --task factscore --input_file eval_data/factscore_unlabeled_alpaca_13b_retrieval.jsonl \
   --output_file YOUR_OUTPUT_FILE_NAME --max_depth 7 \

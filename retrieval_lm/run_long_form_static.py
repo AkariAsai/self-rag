@@ -146,7 +146,7 @@ def run_step_generation_batch(model, prompt, paragraphs,  max_new_tokens,
 
 
 def call_model_beam_batch(prompt, model, max_new_tokens=15, ctxs=None, query=None, max_depth=5, rel_tokens=None,
-                          grd_tokens=None, ret_tokens=None, threshold=None, beam_width=2, ut_tokens=None,
+                          grd_tokens=None, ret_tokens=None, threshold=None, beam_width=2, ut_tokens=None, use_seqscore=False,
                           w_rel=1.0, w_sup=1.0, w_use=0.5, ignore_cont=False, mode="adaptive_retrieval"):
     special_tokens = []
     if "## Input:\n\n" in query:
@@ -219,7 +219,7 @@ def call_model_beam_batch(prompt, model, max_new_tokens=15, ctxs=None, query=Non
                     if "[Retrieval]" in pred:
                         retrieval_results = {}
                         preds, scores, overall_score_dict = run_step_generation_batch(
-                            prompt + prev_generation, ctxs, max_new_tokens,
+                            model, prompt + prev_generation, ctxs, max_new_tokens,
                             rel_tokens, ret_tokens=ret_tokens, grd_tokens=grd_tokens, ut_tokens=ut_tokens,
                             threshold=threshold, w_rel=w_rel, w_sup=w_sup, w_use=w_use)
                         for i, (pred, p_score) in enumerate(zip(preds, scores)):
@@ -319,6 +319,7 @@ def main():
                         default=None, help="Adaptive threshold.")
     parser.add_argument("--use_grounding", action="store_true",
                         help="use ground score")
+    parser.add_argument("--use_seqscore", action="store_true", help="use sequence scores.")
     parser.add_argument(
         "--use_utility", action="store_true", help="tree search")
     parser.add_argument("--beam_width",  type=int,
@@ -358,7 +359,8 @@ def main():
             {"instruction": prompt})
         return call_model_beam_batch(processed_prompt, model=model, max_new_tokens=max_new_tokens, ctxs=ctxs, query=prompt,
                                      rel_tokens=rel_tokens, ret_tokens=ret_tokens, grd_tokens=grd_tokens, ut_tokens=ut_tokens,
-                                     threshold=args.threshold, beam_width=args.beam_width, max_depth=args.max_depth,
+                                     use_seqscore=args.use_seqscore, threshold=args.threshold, 
+                                     beam_width=args.beam_width, max_depth=args.max_depth,
                                      w_rel=1.0, w_sup=1.0, w_use=0.5, mode=args.mode, ignore_cont=args.ignore_cont, )
 
     input_path = args.input_file

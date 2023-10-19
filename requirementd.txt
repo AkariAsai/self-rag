@@ -24,4 +24,4 @@ tokenizers>=0.13.3
 tensorboard
 openai
 tiktoken
-factscore=0.1.5
+factscore==0.1.5
