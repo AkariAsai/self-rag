@@ -1,6 +1,6 @@
 # SELF-RAG: Learning to Retrieve, Generate and Critique through Self-reflection
 
-This includes the original implementation of [SELF-RAG: Learning to Retrieve, Generate and Critique through self-reflection](https://akariasai.github.io/files/adaptive_retrieval_augmented_lm_arxiv.pdf) by Akari Asai, Zeqiu Wu, Yizhong Wang, Avirup Sil, and Hannaneh Hajishirzi. 
+This includes the original implementation of [SELF-RAG: Learning to Retrieve, Generate and Critique through self-reflection](https://arxiv.org/abs/2310.11511) by Akari Asai, Zeqiu Wu, Yizhong Wang, Avirup Sil, and Hannaneh Hajishirzi. 
 
 [Website](https://selfrag.github.io/) | [7B Model](https://huggingface.co/selfrag/selfrag_llama2_7b) | [13B Model](https://huggingface.co/selfrag/selfrag_llama2_13b) | [Paper](https://akariasai.github.io/files/adaptive_retrieval_augmented_lm_arxiv.pdf) | [Updates](#updates)
 
@@ -17,8 +17,10 @@ If you find our code, data, models, or the paper useful, please cite the paper:
 ```
 @article{asai2023selfrag,
   author    = {Asai, Akari and Wu, Zeqiu and Wang, Yizhong and Sil, Avirup and Hajishirzi, Hannaneh},
-  title     = {{Self-RAG}:  Learning to Retrieve, Generate, and Critique through Self-Reflection},
+  title     = {{Self-RAG}: Learning to Retrieve, Generate, and Critique through Self-Reflection},
   year      = {2023},
+journal={ arXiv preprint arXiv:2310.11511 },
+    url={https://arxiv.org/abs/2310.11511}
 }
 ```
 
