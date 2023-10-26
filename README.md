@@ -4,7 +4,7 @@ This includes the original implementation of [SELF-RAG: Learning to Retrieve, Ge
 
 [Website](https://selfrag.github.io/) | [7B Model](https://huggingface.co/selfrag/selfrag_llama2_7b) | [13B Model](https://huggingface.co/selfrag/selfrag_llama2_13b) | [Paper](https://akariasai.github.io/files/adaptive_retrieval_augmented_lm_arxiv.pdf) | [Updates](#updates)
 
-**Self-RAG** (Figure right) is a new framework to train an arbitrary LM to learn to retrieve, generate, and critique to enhance factuality and quality of generations, without hurting versatility of LLMs. 
+**Self-RAG** (Figure right) is a new framework to train an arbitrary LM to learn to retrieve, generate, and critique to enhance the factuality and quality of generations, without hurting the versatility of LLMs. 
 
 Unlike a widely-adopted Retrieval-Augmented Generation (RAG; Figure left) approach, **Self-RAG** retrieves on demand (e.g., can retrieve multiple times or completely skip retrieval) given diverse queries, and criticize its own generation from multiple fine-grained aspects by predicting **reflection tokens** as an integral part of generation. 
 We conduct a segment-wise beam search to select the output that maximizes the utility for diverse preferences. 
@@ -76,7 +76,7 @@ Model prediction: Sure![Retrieval]<paragraph><paragraph>
 ```
 As you can see, Self-RAG starts generating responses without retrieval in the first query when it does not require retrieval. On the other hand, Self-RAG output `[Retrieve]` tokens for the second, as this question requires more fine-grained factual grounding. 
 
-For the query requires factual grounding, you can insert a paragraph. Self-RAG can retrieves and inserts paragraphs anytime while generation, and recognizes them as long as they are surrounded by context markup special tokens `<paragraph>`, `</paragraph>`.   
+For queries that require factual grounding, you can insert a paragraph. Self-RAG retrieves and inserts paragraphs anytime while generating, and recognizes them as long as they are surrounded by context markup special tokens `<paragraph>`, `</paragraph>`.   
 ```
 # for a query that needs factual grounding
 prompt = format_prompt("Can you tell me the difference between llamas and alpacas?", "The alpaca (Lama pacos) is a species of South American camelid mammal. It is similar to, and often confused with, the llama. Alpacas are considerably smaller than llamas, and unlike llamas, they were not bred to be working animals, but were bred specifically for their fiber.")
@@ -84,12 +84,12 @@ preds = model.generate([prompt], sampling_params)
 print([pred.outputs[0].text for pred in preds])
 # ['[Relevant]Alpacas are considerably smaller than llamas, and unlike llamas, they were not bred to be working animals, but were bred specifically for their fiber.[Fully supported][Utility:5]</s>']
 ```
-Self-RAG find inserted document is relevant and generate answers that are fully supported by the evidence. 
+Self-RAG finds the relevant inserted document and generates answers that are fully supported by the evidence. 
 
 
-### Run your evaluation using online retrieval model
+### Run your evaluation using the online retrieval model
 
-You can also run retrieval on-demand and use it with Self-RAG. As running retrieval over full English Wikipedia requires large RAM and multiple GPUs, we created a subset of Wikipedia which includes intro paragraphs of Wikipedia articles only for demo purpose. 
+You can also run retrieval on-demand and use it with Self-RAG. As running retrieval over full English Wikipedia requires large RAM and multiple GPUs, we created a subset of Wikipedia, including intro paragraphs of Wikipedia articles only for demo purposes. 
 
 First, please download the corpus and embeddings (9GB in total). 
 
@@ -121,7 +121,7 @@ Model prediction: [Relevant]Overfitting occurs when a model has too many paramet
 ```
 The retriever system properly retrieves necessary document and generate fully grounded output. 
 
-Note that this is a demo using a smaller corpus and Self-RAG with the full inference algorithm. For full evaluation, you either need to setup retriever or download our retrieved results. Please follow instructions at [Inference](#instruction).  
+Note that this demo uses a smaller corpus and Self-RAG with the full inference algorithm. For a full evaluation, you either need to set up a retriever or download our retrieved results. Please follow instructions at [Inference](#instruction).  
 
 ## Retriever Setup
 By default, we use [Contriever](https://github.com/facebookresearch/contriever) as our retrieval component. 
@@ -133,7 +133,7 @@ cd retrieval_lm
 wget https://dl.fbaipublicfiles.com/dpr/wikipedia_split/psgs_w100.tsv.gz
 ```
 
-Then download the generated passages. We use [Contriever-MSMARCO](https://huggingface.co/facebook/contriever-msmarco) 
+Then, download the generated passages. We use [Contriever-MSMARCO](https://huggingface.co/facebook/contriever-msmarco) 
 ```
 wget https://dl.fbaipublicfiles.com/contriever/embeddings/contriever-msmarco/wikipedia_embeddings.tar
 ```
@@ -154,7 +154,7 @@ Your input file should be either a `json` or `jsonl`. Each instance must contain
 
 ### Generate embeddings for your own data
 
-You can generate embeddings for your own data by running the following command (the script is adapted from the Contriever repository). Note that generating embeddings from a large scale corpus (>10M docs) can take time, and we recommend run it on multiple GPUs. 
+You can generate embeddings for your own data by running the following command. (The script is adapted from the Contriever repository.) Note that generating embeddings from a large-scale corpus (>10M docs) can take time, and we recommend running it on multiple GPUs. 
 
 ```
 cd retrieval_lm
@@ -277,7 +277,7 @@ python run_short_form.py \
 ```
 
 ### Long-form (ASQA, FactScore)
-For long-form QA, you can either run evaluations with a retrieval model or run it with pre-given passages. 
+For long-form QA, you can either run evaluations with a retrieval model or with pre-given passages. 
 Currently, we are working on reducing run-time memory requirements (DPR / Contriever with the whole English Wikipedia Embeddings requires 100 GB RAM) speeding up for long-form generations, and releasing the inference code using a small set of initial retrieved documents first (~20). 
 
 *Note: Our current implementation is specifically designed for evaluations of target task datasets. We are planning to update our code base to make the interface more simple and easier to use. We will announce it when we release another version.* 
