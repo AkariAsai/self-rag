@@ -76,7 +76,7 @@ Model prediction: Sure![Retrieval]<paragraph><paragraph>
 ```
 As you can see, Self-RAG starts generating responses without retrieval in the first query when it does not require retrieval. On the other hand, Self-RAG output `[Retrieve]` tokens for the second, as this question requires more fine-grained factual grounding. 
 
-For queries that require factual grounding, you can insert a paragraph. Self-RAG retrieves and inserts paragraphs anytime while generating, and recognizes them as long as they are surrounded by context markup special tokens `<paragraph>`, `</paragraph>`.   
+For queries that require factual grounding, you can insert a paragraph. Self-RAG can retrieve and insert paragraphs anytime while generating, and recognizes them as long as they are surrounded by context markup special tokens `<paragraph>`, `</paragraph>`.   
 ```
 # for a query that needs factual grounding
 prompt = format_prompt("Can you tell me the difference between llamas and alpacas?", "The alpaca (Lama pacos) is a species of South American camelid mammal. It is similar to, and often confused with, the llama. Alpacas are considerably smaller than llamas, and unlike llamas, they were not bred to be working animals, but were bred specifically for their fiber.")
