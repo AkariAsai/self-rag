@@ -1,11 +1,11 @@
 ## Collecting Machine Generated Reward
-This directory contains codes to generate machine-generated reward for a given input output pair. 
+This directory contains codes to generate machine-generated rewards for a given input-output pair. 
 We use GPT-4 by default. 
 
 ## How to collect reward data
 Follow README in [process_data](../process_data) to create the source data.
 
-Input file is a `json` or `jsonl` file containing a list of entry. Each entry consists of 
+The input file is a `json` or `jsonl` file containing a list of entries. Each entry consists of 
 
 ```py
 {
@@ -29,7 +29,7 @@ We collect fine-grained feedback for the following four aspects. Use the followi
 3. [Collect `IsSup` tokens](chatgpt_groundness.py)
 
 ```sh
-python chatgpt_usefulness.py \
+python chatgpt_utility.py \
     --input_file path_to_input_file \
     --output_file_name path_to_output_file \
     --api_key path_to_open_ai_api_txt_file \
