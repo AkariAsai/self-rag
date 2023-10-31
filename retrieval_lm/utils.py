@@ -151,3 +151,44 @@ def postprocess_output(input_instance, prediction, task, intermediate_results=No
             input_instance["output"] = final_output
         input_instance["docs"] = docs
         return input_instance
+
+def process_arc_instruction(item, instruction):
+    choices = item["choices"]
+    answer_labels = {}
+    for i in range(len(choices["label"])):
+        answer_key = choices["label"][i]
+        text = choices["text"][i]
+        if answer_key == "1":
+            answer_labels["A"] = text
+        if answer_key == "2":
+            answer_labels["B"] = text
+        if answer_key == "3":
+            answer_labels["C"] = text
+        if answer_key == "4":
+            answer_labels["D"] = text
+        if answer_key in ["A", "B", "C", "D"]:
+            answer_labels[answer_key] = text
+
+    if "D" not in answer_labels:
+        answer_labels["D"] = ""
+    choices = "\nA: {0}\nB: {1}\nC: {2}\nD: {3}".format(answer_labels["A"], answer_labels["B"], answer_labels["C"], answer_labels["D"])
+    if "E" in answer_labels:
+        choices += "\nE: {}".format(answer_labels["E"])
+    processed_instruction = instruction + "\n\n### Input:\n" + item["instruction"] + choices
+    return processed_instruction
+
+
+def postprocess_answers_closed(output, task, choices=None):
+    final_output = None
+    if choices is not None:
+        for c in choices.split(" "):
+            if c in output:
+                final_output = c
+    if task == "fever" and output in ["REFUTES", "SUPPORTS"]:
+        final_output = "true" if output == "SUPPORTS" else "REFUTES"
+    if task == "fever" and output.lower() in ["true", "false"]:
+        final_output = output.lower()
+    if final_output is None:
+        return output
+    else:
+        return final_output
