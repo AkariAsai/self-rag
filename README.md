@@ -375,7 +375,7 @@ python run_baseline_refactor.py \
 ### Retrieval-augmented baselines
 
 - Huggingface models
-- 
+
 ```
 python run_baseline_refactor.py \
 --model_name meta-llama/Llama-2-7b-hf \
