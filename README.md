@@ -122,7 +122,7 @@ Model prediction: [Relevant]Overfitting occurs when a model has too many paramet
 ```
 The retriever system properly retrieves necessary document and generate fully grounded output. 
 
-Note that this demo uses a smaller corpus and Self-RAG with the full inference algorithm. For a full evaluation, you either need to set up a retriever or download our retrieved results. Please follow instructions at [Inference](#instruction).  
+**Note that this demo uses a smaller corpus and Self-RAG with the full inference algorithm. For a full evaluation, you either need to set up a retriever or download our retrieved results. Please follow instructions at [Inference](#instruction).**  
 
 ## Retriever Setup
 By default, we use [Contriever](https://github.com/facebookresearch/contriever) as our retrieval component. 
