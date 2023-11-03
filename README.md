@@ -33,8 +33,9 @@ If you find our code, data, models, or the paper useful, please cite the paper:
 2. [Retriever setup](#retriever-setup)
 3. [Training](#training) 
 4. [Inference](#inference)
-5. [FAQ](#faq)
-6. [Contact](#contact)
+5. [Baselines](#baselines)
+6. [FAQ](#faq)
+7. [Contact](#contact)
 
 
 ## Installation
@@ -341,10 +342,66 @@ For ASQA, you can run evaluations as follows. Note that ASQA evaluations require
 python eval.py --f YOUR_OUTPUT_FILE --citations --qa --mauve
 ```
 
-## FAQ
-**Q1: How can I train a new pre-trained LM using Self-RAG scheme?** -- If you are using huggingface transformers, you can simply change the `model_name_or_path` and `tokenizer_name` in our training script, [script_finetune_7b.sh](https://github.com/AkariAsai/self-rag/blob/main/retrieval_lm/script_finetune_7b.sh). If you want to use your own fine-tuning script, please make sure to add the special tokens and mask out the paragraph context, as discussed in [this issue](https://github.com/AkariAsai/self-rag/issues/12)
+## Baselines
+Code to rerun the baselines is available at [run_baseline_lm.py](https://github.com/AkariAsai/self-rag/blob/main/retrieval_lm/run_baseline_lm.py).     
+To run the retrieval-augmented baselines, make sure to download the task input files with retrieved passages. 
 
-**Q2: Are you planning to release Mistral-7B-based Self-RAG?** -- Right now I have limited bandwidth to do so, but there is a community trained version of Self-RAG [SciPhi-Self-RAG-Mistral-7B-32k](https://huggingface.co/SciPhi/SciPhi-Self-RAG-Mistral-7B-32k) on top of Mistral-7B. We will announce if we can train Self-RAG on Mistral-7B and release the checkpoint.  
+
+### Vanilla LM baselines
+
+- Huggingface models
+```
+python run_baseline_refactor.py \
+--model_name meta-llama/Llama-2-7b-hf \
+--input_file INPUT_FILE_SAME_AS_SELF_RAG \
+ --max_new_tokens 100 --metric match \
+--result_fp RESULT_FILE_PATH --task qa --prompt_name "prompt_no_input"
+```
+
+- OpenAI APIs
+
+For OpenAI API models, you also need to set the organization key [here](https://github.com/AkariAsai/self-rag/blob/main/retrieval_lm/run_baseline_lm.py#L12). You also need to have a txt file including your OpenAI API key. 
+```
+python run_baseline_refactor.py \
+--model_name gpt-3.5-turbo-0301 \
+--input_file INPUT_FILE_SAME_AS_SELF_RAG \
+--max_new_tokens 100 --metric match \
+--result_fp RESULT_FILE_PATH \
+ --task qa \
+--api_key YOUR_OPEN_AI_API_KEY_FILE \
+--prompt_name "prompt_no_input" 
+```
+
+### Retrieval-augmented baselines
+
+- Huggingface models
+- 
+```
+python run_baseline_refactor.py \
+--model_name meta-llama/Llama-2-7b-hf \
+--input_file INPUT_FILE_SAME_AS_SELF_RAG \
+ --max_new_tokens 100 --metric match \
+--result_fp RESULT_FILE_PATH --task qa \
+--mode retrieval \
+--prompt_name "prompt_no_input_retrieval"
+```
+- OpenAI APIs
+```
+python run_baseline_refactor.py \
+--model_name gpt-3.5-turbo-0301 \
+--input_file INPUT_FILE_SAME_AS_SELF_RAG \
+--max_new_tokens 100 --metric match \
+--result_fp RESULT_FILE_PATH \
+ --task qa \
+--api_key YOUR_OPEN_AI_API_KEY_FILE \
+--mode retrieval \
+--prompt_name "prompt_no_input_retrieval" 
+```
+
+## FAQ
+**Q1: How can I train a new pre-trained LM using Self-RAG scheme?** -- If you are using hugging face transformers, you can simply change the `model_name_or_path` and `tokenizer_name` in our training script, [script_finetune_7b.sh](https://github.com/AkariAsai/self-rag/blob/main/retrieval_lm/script_finetune_7b.sh). If you want to use your own fine-tuning script, please make sure to add the special tokens and mask out the paragraph context, as discussed in [this issue](https://github.com/AkariAsai/self-rag/issues/12)
+
+**Q2: Are you planning to release Mistral-7B-based Self-RAG?** -- Right now I have limited bandwidth to do so, but there is a community-trained version of Self-RAG [SciPhi-Self-RAG-Mistral-7B-32k](https://huggingface.co/SciPhi/SciPhi-Self-RAG-Mistral-7B-32k) on top of Mistral-7B. We will announce if we can train Self-RAG on Mistral-7B and release the checkpoint.  
 
 
 
