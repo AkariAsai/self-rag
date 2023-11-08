@@ -175,7 +175,7 @@ def call_model_beam_batch(prompt, model, max_new_tokens=15, ctxs=None, query=Non
         pred_log_probs = preds[0].outputs[0].logprobs
         preds = [pred.outputs[0].text.split("\n\n")[0] for pred in preds]
         if "[Retrieval]" not in preds[0]:
-            do_retrieve = True
+            do_retrieve = False
         else:
             if threshold is None:
                 do_retrieve = False
