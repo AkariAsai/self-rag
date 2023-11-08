@@ -2,7 +2,7 @@
 
 This includes the original implementation of [SELF-RAG: Learning to Retrieve, Generate and Critique through self-reflection](https://arxiv.org/abs/2310.11511) by Akari Asai, Zeqiu Wu, Yizhong Wang, Avirup Sil, and Hannaneh Hajishirzi. 
 
-[Website](https://selfrag.github.io/) | [7B Model](https://huggingface.co/selfrag/selfrag_llama2_7b) | [13B Model](https://huggingface.co/selfrag/selfrag_llama2_13b) | [Paper](https://akariasai.github.io/files/adaptive_retrieval_augmented_lm_arxiv.pdf) | [Updates](#updates)
+[Website](https://selfrag.github.io/) | [7B Model](https://huggingface.co/selfrag/selfrag_llama2_7b) | [13B Model](https://huggingface.co/selfrag/selfrag_llama2_13b) | [Paper](https://akariasai.github.io/files/adaptive_retrieval_augmented_lm_arxiv.pdf) | [Training data](https://huggingface.co/datasets/selfrag/selfrag_train_data) | [Twitter summary](https://twitter.com/AkariAsai/status/1715110277077962937) | [Updates](#updates) 
 
 **Self-RAG** (Figure right) is a new framework to train an arbitrary LM to learn to retrieve, generate, and critique to enhance the factuality and quality of generations, without hurting the versatility of LLMs. 
 
@@ -33,7 +33,9 @@ If you find our code, data, models, or the paper useful, please cite the paper:
 2. [Retriever setup](#retriever-setup)
 3. [Training](#training) 
 4. [Inference](#inference)
-5. [Contact](#contact)
+5. [Baselines](#baselines)
+6. [FAQ](#faq)
+7. [Contact](#contact)
 
 
 ## Installation
@@ -98,7 +100,7 @@ git clone git@github.com:AkariAsai/self-rag.git
 cd retrieval_lm
 bash download_demo_corpus.sh
 ```
-If the script does not work, you can download the data from [google drive](https://drive.google.com/file/d/1IYNAkwawfCDiBL27BlBqGssxFQH9vOux/view?usp=share_link). 
+If the script does not work, you can download the data from [google drive](https://drive.google.com/file/d/1IYNAkwawfCDiBL27BlBqGssxFQH9vOux/view?usp=share_link) or [HF dataset](https://huggingface.co/datasets/selfrag/selfrag_train_data). 
 Then, you can run the script under `retrieval_lm`. We tested the script using on 1 RTRTX 6000 with 24GB and 100G RAM (but should be runnable with much smaller RAM).
 
 ```py
@@ -121,7 +123,7 @@ Model prediction: [Relevant]Overfitting occurs when a model has too many paramet
 ```
 The retriever system properly retrieves necessary document and generate fully grounded output. 
 
-Note that this demo uses a smaller corpus and Self-RAG with the full inference algorithm. For a full evaluation, you either need to set up a retriever or download our retrieved results. Please follow instructions at [Inference](#instruction).  
+**Note that this demo uses a smaller corpus and Self-RAG with the full inference algorithm. For a full evaluation, you either need to set up a retriever or download our retrieved results. Please follow instructions at [Inference](#instruction).**  
 
 ## Retriever Setup
 By default, we use [Contriever](https://github.com/facebookresearch/contriever) as our retrieval component. 
@@ -339,6 +341,69 @@ For ASQA, you can run evaluations as follows. Note that ASQA evaluations require
 ```
 python eval.py --f YOUR_OUTPUT_FILE --citations --qa --mauve
 ```
+
+## Baselines
+Code to rerun the baselines is available at [run_baseline_lm.py](https://github.com/AkariAsai/self-rag/blob/main/retrieval_lm/run_baseline_lm.py).     
+To run the retrieval-augmented baselines, make sure to download the task input files with retrieved passages. 
+
+
+### Vanilla LM baselines
+
+- Huggingface models
+```
+python run_baseline_refactor.py \
+--model_name meta-llama/Llama-2-7b-hf \
+--input_file INPUT_FILE_SAME_AS_SELF_RAG \
+ --max_new_tokens 100 --metric match \
+--result_fp RESULT_FILE_PATH --task qa --prompt_name "prompt_no_input"
+```
+
+- OpenAI APIs
+
+For OpenAI API models, you also need to set the organization key [here](https://github.com/AkariAsai/self-rag/blob/main/retrieval_lm/run_baseline_lm.py#L12). You also need to have a txt file including your OpenAI API key. 
+```
+python run_baseline_refactor.py \
+--model_name gpt-3.5-turbo-0301 \
+--input_file INPUT_FILE_SAME_AS_SELF_RAG \
+--max_new_tokens 100 --metric match \
+--result_fp RESULT_FILE_PATH \
+ --task qa \
+--api_key YOUR_OPEN_AI_API_KEY_FILE \
+--prompt_name "prompt_no_input" 
+```
+
+### Retrieval-augmented baselines
+
+- Huggingface models
+
+```
+python run_baseline_refactor.py \
+--model_name meta-llama/Llama-2-7b-hf \
+--input_file INPUT_FILE_SAME_AS_SELF_RAG \
+ --max_new_tokens 100 --metric match \
+--result_fp RESULT_FILE_PATH --task qa \
+--mode retrieval \
+--prompt_name "prompt_no_input_retrieval"
+```
+- OpenAI APIs
+```
+python run_baseline_refactor.py \
+--model_name gpt-3.5-turbo-0301 \
+--input_file INPUT_FILE_SAME_AS_SELF_RAG \
+--max_new_tokens 100 --metric match \
+--result_fp RESULT_FILE_PATH \
+ --task qa \
+--api_key YOUR_OPEN_AI_API_KEY_FILE \
+--mode retrieval \
+--prompt_name "prompt_no_input_retrieval" 
+```
+
+## FAQ
+**Q1: How can I train a new pre-trained LM using Self-RAG scheme?** -- If you are using hugging face transformers, you can simply change the `model_name_or_path` and `tokenizer_name` in our training script, [script_finetune_7b.sh](https://github.com/AkariAsai/self-rag/blob/main/retrieval_lm/script_finetune_7b.sh). If you want to use your own fine-tuning script, please make sure to add the special tokens and mask out the paragraph context, as discussed in [this issue](https://github.com/AkariAsai/self-rag/issues/12)
+
+**Q2: Are you planning to release Mistral-7B-based Self-RAG?** -- Right now I have limited bandwidth to do so, but there is a community-trained version of Self-RAG [SciPhi-Self-RAG-Mistral-7B-32k](https://huggingface.co/SciPhi/SciPhi-Self-RAG-Mistral-7B-32k) on top of Mistral-7B. We will announce if we can train Self-RAG on Mistral-7B and release the checkpoint.  
+
+
 
 ## Contact
 If you have questions, please open an issue mentioning @AkariAsai or send an email to akari[at]cs.washington.edu. 
