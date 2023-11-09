@@ -171,9 +171,9 @@ for i in {0..3}; do
 **Self-RAG** trains two models, *Critic* and *Generator*, both of which expand token vocabularies with reflection tokens and are trained with the standard next token prediction objective. 
 
 - [Step 1: Critic Data Creation](#collect-reflection-tokens): Generating Critic training data with GPT4. 
-- [Step 2: Critic Training](#critic-training): Generating Critic training data with GPT4. 
+- [Step 2: Critic Training](#critic-training):  Training a Critic with new special tokens. 
 - [Step 3: Generator Data Creation](#generator-data-creation): Generating Generator training data using Critic and Retriever. 
-- [Step 4: Generator Training](#generator-training): Training a Critic / Generator with new special tokens. 
+- [Step 4: Generator Training](#generator-training): Training a Generator with new special tokens. 
 
 Alternatively, you can download our training data consisting of 150K instances [here](https://drive.google.com/file/d/10G_FozUV4u27EX0NjwVe-3YMUMeTwuLk/view?usp=share_link).
 
