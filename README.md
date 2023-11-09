@@ -101,7 +101,7 @@ cd retrieval_lm
 bash download_demo_corpus.sh
 ```
 If the script does not work, you can download the data from [google drive](https://drive.google.com/file/d/1IYNAkwawfCDiBL27BlBqGssxFQH9vOux/view?usp=share_link) or [HF dataset](https://huggingface.co/datasets/selfrag/selfrag_train_data). 
-Then, you can run the script under `retrieval_lm`. We tested the script using on 1 RTRTX 6000 with 24GB and 100G RAM (but should be runnable with much smaller RAM).
+Then, you can run the script under `retrieval_lm`. We tested the script using on 1 RTX 6000 with 24GB and 100G RAM (but should be runnable with much smaller RAM).
 
 ```py
 from passage_retriever import Retriever
