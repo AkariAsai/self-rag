@@ -101,7 +101,7 @@ cd retrieval_lm
 bash download_demo_corpus.sh
 ```
 If the script does not work, you can download the data from [google drive](https://drive.google.com/file/d/1IYNAkwawfCDiBL27BlBqGssxFQH9vOux/view?usp=share_link) or [HF dataset](https://huggingface.co/datasets/selfrag/selfrag_train_data). 
-Then, you can run the script under `retrieval_lm`. We tested the script using on 1 RTRTX 6000 with 24GB and 100G RAM (but should be runnable with much smaller RAM).
+Then, you can run the script under `retrieval_lm`. We tested the script using on 1 RTX 6000 with 24GB and 100G RAM (but should be runnable with much smaller RAM).
 
 ```py
 from passage_retriever import Retriever
@@ -171,9 +171,9 @@ for i in {0..3}; do
 **Self-RAG** trains two models, *Critic* and *Generator*, both of which expand token vocabularies with reflection tokens and are trained with the standard next token prediction objective. 
 
 - [Step 1: Critic Data Creation](#collect-reflection-tokens): Generating Critic training data with GPT4. 
-- [Step 2: Critic Training](#critic-training): Generating Critic training data with GPT4. 
+- [Step 2: Critic Training](#critic-training):  Training a Critic with new special tokens. 
 - [Step 3: Generator Data Creation](#generator-data-creation): Generating Generator training data using Critic and Retriever. 
-- [Step 4: Generator Training](#generator-training): Training a Critic / Generator with new special tokens. 
+- [Step 4: Generator Training](#generator-training): Training a Generator with new special tokens. 
 
 Alternatively, you can download our training data consisting of 150K instances [here](https://drive.google.com/file/d/10G_FozUV4u27EX0NjwVe-3YMUMeTwuLk/view?usp=share_link).
 
