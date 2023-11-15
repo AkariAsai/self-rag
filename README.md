@@ -288,7 +288,7 @@ Currently, we are working on reducing run-time memory requirements (DPR / Contri
 
 For ASQA, please run the following command, 
 ```
-python run_long_form_static.py.py \
+python run_long_form_static.py \
   --model_name selfrag/selfrag_llama2_7b \
   --ndocs 5 --max_new_tokens 300 --threshold 0.2 \
   --use_grounding --use_utility --use_seqscore \
@@ -299,7 +299,7 @@ python run_long_form_static.py.py \
 For FactScore, 
 
 ```
-python run_long_form_static.py.py \
+python run_long_form_static.py \
   --model_name selfrag/selfrag_llama2_7b \
   --ndocs 5 --max_new_tokens 300 --threshold 0.2 \
   --use_grounding --use_utility --use_seqscore \
