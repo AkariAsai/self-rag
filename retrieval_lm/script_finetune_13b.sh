@@ -1,6 +1,6 @@
 export CUDA_VISIBLE_DEVICES=0,1,2,3
 
-MODEL_SIZE=7B
+MODEL_SIZE=13B
 NUM_GPUS=4
 BATCH_SIZE_PER_GPU=1
 TOTAL_BATCH_SIZE=128
@@ -14,12 +14,12 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch \
     --use_deepspeed \
     --deepspeed_config_file stage3_no_offloading_accelerate.conf \
     finetune.py \
-    --model_name_or_path meta-llama/Llama-2-7b-hf \
+    --model_name_or_path meta-llama/Llama-2-13b-hf \
     --use_flash_attn \
-    --tokenizer_name meta-llama/Llama-2-7b-hf \
+    --tokenizer_name meta-llama/Llama-2-13b-hf \
     --use_slow_tokenizer \
     --train_file full_output_1005.jsonl \
-    --max_seq_length 2048 \
+    --max_seq_length 1536 \
     --preprocessing_num_workers 16 \
     --per_device_train_batch_size $BATCH_SIZE_PER_GPU \
     --gradient_accumulation_steps $GRADIENT_ACC_STEPS \
