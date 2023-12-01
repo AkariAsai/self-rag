@@ -10,6 +10,25 @@ PROMPT_DICT = {
     "prompt_no_input": (
         "### Instruction:\n{instruction}\n\n### Response:\n"
     ),
+    "prompt_no_input_retrieval": (
+        "Below is an instruction that describes a task. "
+        "Write a response that appropriately completes the request.\n\n"
+        "### Paragraph:\n{paragraph}\n\n### Instruction:\n{instruction}\n\n### Response:"
+    ),
+    "prompt_open_instruct": (
+        "<user>\n{instruction}\n"
+        "<assistant>\n"
+    ),
+    "prompt_open_instruct_retrieval": (
+        "<user>\nReference:{paragraph}\n{instruction}\n"
+        "<assistant>\n"
+    ),
+    "llama_chat_prompt": (
+        "[INST]{instruction}[/INST]"
+    ),
+    "llama_chat_prompt_retrieval": (
+        "[INST]{paragraph}\n{instruction}[/INST]"
+    ),
 }
 
 TASK_INST = {"wow": "Given a chat history separated by new lines, generates an informative, knowledgeable and engaging response. ",
