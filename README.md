@@ -46,6 +46,12 @@ pip install -r requirements.txt
 ```
 Please use the latest version of `vllm`, as the older version may not enable you to set `skip_special_tokens` via `SamplingParam`, which is added by ([this PR](https://github.com/vllm-project/vllm/issues/893)). 
 
+You can also create a conda environment by running the command below.
+
+```
+conda env create -f environment.yml
+```
+
 ## Quick start
 You can download Self-RAG from HuggingFace Hub. For inference, we recommend using [vllm](https://vllm.readthedocs.io/en/latest/) as it significantly speeds up inferences. 
  
