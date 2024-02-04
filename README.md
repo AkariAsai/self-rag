@@ -1,6 +1,6 @@
 # SELF-RAG: Learning to Retrieve, Generate and Critique through Self-reflection
 
-This includes the original implementation of [SELF-RAG: Learning to Retrieve, Generate and Critique through self-reflection](https://arxiv.org/abs/2310.11511) by Akari Asai, Zeqiu Wu, Yizhong Wang, Avirup Sil, and Hannaneh Hajishirzi. 
+This includes the original implementation of [SELF-RAG: Learning to Retrieve, Generate and Critique through self-reflection](https://arxiv.org/abs/2310.11511) (ICLR 2024, Oral top 1%) by Akari Asai, Zeqiu Wu, Yizhong Wang, Avirup Sil, and Hannaneh Hajishirzi. 
 
 [Website](https://selfrag.github.io/) | [7B Model](https://huggingface.co/selfrag/selfrag_llama2_7b) | [13B Model](https://huggingface.co/selfrag/selfrag_llama2_13b) | [Paper](https://akariasai.github.io/files/adaptive_retrieval_augmented_lm_arxiv.pdf) | [Training data](https://huggingface.co/datasets/selfrag/selfrag_train_data) | [Twitter summary](https://twitter.com/AkariAsai/status/1715110277077962937) | [Updates](#updates) 
 
@@ -15,12 +15,13 @@ We conduct a segment-wise beam search to select the output that maximizes the ut
 
 If you find our code, data, models, or the paper useful, please cite the paper:
 ```
-@article{asai2023selfrag,
-  author    = {Asai, Akari and Wu, Zeqiu and Wang, Yizhong and Sil, Avirup and Hajishirzi, Hannaneh},
-  title     = {{Self-RAG}: Learning to Retrieve, Generate, and Critique through Self-Reflection},
-  year      = {2023},
- journal={ arXiv preprint arXiv:2310.11511 },
- url={https://arxiv.org/abs/2310.11511}
+@inproceedings{
+asai2024selfrag,
+author={Asai, Akari and Wu, Zeqiu and Wang, Yizhong and Sil, Avirup and Hajishirzi, Hannaneh},
+title={Self-{RAG}: Learning to Retrieve, Generate, and Critique through Self-Reflection},
+booktitle={The Twelfth International Conference on Learning Representations},
+year={2024},
+url={https://openreview.net/forum?id=hSyW5go0v8}
 }
 ```
 
