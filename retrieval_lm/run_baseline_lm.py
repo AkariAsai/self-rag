@@ -147,13 +147,9 @@ def main():
         if args.instruction is not None:
             item["instruction"] = args.instruction + \
                 "\n\n### Input:\n" + item["instruction"]
-        if args.task == "fever":
-            item["instruction"] = TASK_INST["fever"] + \
+        if args.task == "fever" or args.task == "arc_c":
+            item["instruction"] = TASK_INST[args.task] + \
                 "\n\n### Input:\n" + item["instruction"]
-
-        if args.task == "arc_c":
-            item["instruction"] = process_arc_instruction(
-                item, args.instruction)
 
     final_results = []
     for idx in tqdm(range(len(input_data) // args.batch_size)):
