@@ -3,7 +3,7 @@ import numpy as np
 from tqdm import tqdm
 import argparse
 from vllm import LLM, SamplingParams
-from utils import load_file, PROMPT_DICT, save_file_jsonl, process_arc_instruction, postprocess_answers_closed
+from utils import load_file, TASK_INST, PROMPT_DICT, save_file_jsonl, process_arc_instruction, postprocess_answers_closed
 from metrics import metric_max_over_ground_truths, exact_match_score, match
 import ast
 import backoff
@@ -147,6 +147,9 @@ def main():
         if args.instruction is not None:
             item["instruction"] = args.instruction + \
                 "\n\n### Input:\n" + item["instruction"]
+        if args.task == "fever":
+            item["instruction"] = TASK_INST["fever"] + \
+                "\n\n### Input:\n" + item["instruction"]
 
         if args.task == "arc_c":
             item["instruction"] = process_arc_instruction(
@@ -199,7 +202,6 @@ def main():
             pred = preds[j]
             item["output"] = postprocess_answers_closed(
                 pred, args.task, args.choices)
-            item["output"] = pred
             final_results.append(item)
 
     for item in input_data:
