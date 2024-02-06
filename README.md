@@ -372,7 +372,7 @@ python run_baseline_lm.py \
 --max_new_tokens 20 \
 --metric accuracy \
 --result_fp llama2_7b_pubhealth_results.json \
---task fever --download_dir /gscratch/h2lab/akari/model_cache
+--task fever
 ```
 **Note: for PubHealth and ARC, please pass the task names (ARC = `arc_c` and PubHealth = `fever`) to properly set the instruction.**
 - OpenAI APIs
