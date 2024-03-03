@@ -111,7 +111,7 @@ If the script does not work, you can download the data from [google drive](https
 Then, you can run the script under `retrieval_lm`. We tested the script using on 1 RTX 6000 with 24GB and 100G RAM (but should be runnable with much smaller RAM).
 
 ```py
-from passage_retriever import Retriever
+from passage_retrieval import Retriever
 retriever = Retriever({})
 retriever.setup_retriever_demo("facebook/contriever-msmarco", "enwiki_2020_intro_only/enwiki_2020_dec_intro_only.jsonl", "enwiki_2020_intro_only/enwiki_dec_2020_contriever_intro/*",  n_docs=5, save_or_load_index=False)
 retrieved_documents = retriever.search_document_demo(query_3, 5)
