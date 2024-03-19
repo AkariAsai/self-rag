@@ -358,7 +358,7 @@ To run the retrieval-augmented baselines, make sure to download the task input f
 
 - Huggingface models
 ```
-python run_baseline_refactor.py \
+python run_baseline_lm.py \
 --model_name meta-llama/Llama-2-7b-hf \
 --input_file INPUT_FILE_SAME_AS_SELF_RAG \
  --max_new_tokens 100 --metric match \
@@ -379,7 +379,7 @@ python run_baseline_lm.py \
 
 For OpenAI API models, you also need to set the organization key [here](https://github.com/AkariAsai/self-rag/blob/main/retrieval_lm/run_baseline_lm.py#L12). You also need to have a txt file including your OpenAI API key.
 ```
-python run_baseline_refactor.py \
+python run_baseline_lm.py \
 --model_name gpt-3.5-turbo-0301 \
 --input_file INPUT_FILE_SAME_AS_SELF_RAG \
 --max_new_tokens 100 --metric match \
@@ -404,7 +404,7 @@ python run_baseline_refactor.py \
 ```
 - OpenAI APIs
 ```
-python run_baseline_refactor.py \
+python run_baseline_lm.py \
 --model_name gpt-3.5-turbo-0301 \
 --input_file INPUT_FILE_SAME_AS_SELF_RAG \
 --max_new_tokens 100 --metric match \
